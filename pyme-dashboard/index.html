@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel de Control PyME - Dashboard de Ventas</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============ PANTALLA DE LOGIN ============ -->
+<div id="login-screen" class="login-wrapper">
+  <div class="login-card">
+    <div class="login-logo">
+      <i class="fa-solid fa-chart-line"></i>
+    </div>
+    <h2>Panel de Control PyME</h2>
+    <p class="text-muted">Dashboard de Ventas</p>
+    <form id="login-form">
+      <div class="mb-3 text-start">
+        <label class="form-label">Usuario</label>
+        <input type="text" class="form-control" id="login-user" value="admin" required>
+      </div>
+      <div class="mb-3 text-start">
+        <label class="form-label">Contraseña</label>
+        <input type="password" class="form-control" id="login-pass" value="admin123" required>
+      </div>
+      <div id="login-error" class="alert alert-danger d-none py-2"></div>
+      <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+    </form>
+    <p class="text-muted small mt-3">Usuario demo: <b>admin</b> / Contraseña: <b>admin123</b></p>
+  </div>
+</div>
+
+<!-- ============ APP PRINCIPAL ============ -->
+<div id="app-screen" class="d-none">
+  <div class="app-layout">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>PyME Dashboard</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-link active" data-section="inicio"><i class="fa-solid fa-house"></i> Inicio</a>
+        <a href="#" class="nav-link" data-section="ventas"><i class="fa-solid fa-cart-shopping"></i> Ventas</a>
+        <a href="#" class="nav-link" data-section="productos"><i class="fa-solid fa-box"></i> Productos</a>
+        <a href="#" class="nav-link" data-section="clientes"><i class="fa-solid fa-users"></i> Clientes</a>
+        <a href="#" class="nav-link" data-section="reportes"><i class="fa-solid fa-chart-pie"></i> Reportes</a>
+      </nav>
+      <div class="sidebar-footer">
+        <button id="btn-logout" class="btn btn-outline-light btn-sm w-100"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</button>
+      </div>
+    </aside>
+
+    <!-- Contenido -->
+    <div class="main-content">
+      <header class="topbar">
+        <button id="btn-toggle-sidebar" class="btn btn-light d-lg-none"><i class="fa-solid fa-bars"></i></button>
+        <h1 id="section-title">Inicio</h1>
+        <div class="topbar-user"><i class="fa-solid fa-circle-user"></i> <span id="current-user">admin</span></div>
+      </header>
+
+      <main class="content-area">
+
+        <!-- ===== INICIO / DASHBOARD ===== -->
+        <section id="section-inicio" class="app-section">
+          <div class="kpi-grid">
+            <div class="kpi-card kpi-blue">
+              <div class="kpi-icon"><i class="fa-solid fa-sack-dollar"></i></div>
+              <div><div class="kpi-value" id="kpi-ventas-hoy">S/ 0.00</div><div class="kpi-label">Ventas Hoy</div></div>
+            </div>
+            <div class="kpi-card kpi-green">
+              <div class="kpi-icon"><i class="fa-solid fa-calendar-days"></i></div>
+              <div><div class="kpi-value" id="kpi-ventas-mes">S/ 0.00</div><div class="kpi-label">Ventas del Mes</div></div>
+            </div>
+            <div class="kpi-card kpi-orange">
+              <div class="kpi-icon"><i class="fa-solid fa-receipt"></i></div>
+              <div><div class="kpi-value" id="kpi-pedidos">0</div><div class="kpi-label">Pedidos</div></div>
+            </div>
+            <div class="kpi-card kpi-purple">
+              <div class="kpi-icon"><i class="fa-solid fa-users"></i></div>
+              <div><div class="kpi-value" id="kpi-clientes">0</div><div class="kpi-label">Clientes Registrados</div></div>
+            </div>
+            <div class="kpi-card kpi-teal">
+              <div class="kpi-icon"><i class="fa-solid fa-box-open"></i></div>
+              <div><div class="kpi-value" id="kpi-productos-vendidos">0</div><div class="kpi-label">Productos Vendidos</div></div>
+            </div>
+            <div class="kpi-card kpi-red">
+              <div class="kpi-icon"><i class="fa-solid fa-coins"></i></div>
+              <div><div class="kpi-value" id="kpi-ingresos">S/ 0.00</div><div class="kpi-label">Ingresos Totales</div></div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-lg-8">
+              <div class="panel-card">
+                <h5>Ventas por mes</h5>
+                <canvas id="chart-ventas-mes" height="110"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-4">
+              <div class="panel-card h-100">
+                <h5>Stock bajo</h5>
+                <div id="lista-stock-bajo" class="mini-list"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3 mt-1">
+            <div class="col-lg-6">
+              <div class="panel-card">
+                <h5>Productos más vendidos</h5>
+                <div id="lista-top-productos" class="mini-list"></div>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="panel-card">
+                <h5>Últimas ventas</h5>
+                <div id="lista-ultimas-ventas" class="mini-list"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== VENTAS ===== -->
+        <section id="section-ventas" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <div class="d-flex gap-2 flex-wrap">
+              <input type="date" id="filtro-fecha-desde" class="form-control form-control-sm">
+              <input type="date" id="filtro-fecha-hasta" class="form-control form-control-sm">
+              <button id="btn-filtrar-ventas" class="btn btn-sm btn-outline-secondary">Filtrar</button>
+              <button id="btn-limpiar-filtro-ventas" class="btn btn-sm btn-outline-secondary">Limpiar</button>
+            </div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-venta"><i class="fa-solid fa-plus"></i> Registrar venta</button>
+          </div>
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle" id="tabla-ventas">
+                <thead><tr><th>ID</th><th>Fecha</th><th>Cliente</th><th>Items</th><th>Total</th><th></th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== PRODUCTOS ===== -->
+        <section id="section-productos" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <input type="text" id="buscar-producto" class="form-control form-control-sm" style="max-width:260px" placeholder="Buscar producto...">
+            <button class="btn btn-primary" id="btn-nuevo-producto" data-bs-toggle="modal" data-bs-target="#modal-producto"><i class="fa-solid fa-plus"></i> Nuevo producto</button>
+          </div>
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle" id="tabla-productos">
+                <thead><tr><th>Nombre</th><th>Categoría</th><th>Precio</th><th>Stock</th><th>Estado</th><th></th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== CLIENTES ===== -->
+        <section id="section-clientes" class="app-section d-none">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <input type="text" id="buscar-cliente" class="form-control form-control-sm" style="max-width:260px" placeholder="Buscar cliente...">
+            <button class="btn btn-primary" id="btn-nuevo-cliente" data-bs-toggle="modal" data-bs-target="#modal-cliente"><i class="fa-solid fa-plus"></i> Nuevo cliente</button>
+          </div>
+          <div class="panel-card">
+            <div class="table-responsive">
+              <table class="table table-hover align-middle" id="tabla-clientes">
+                <thead><tr><th>Nombre</th><th>DNI</th><th>Teléfono</th><th>Correo</th><th>Compras</th><th></th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== REPORTES ===== -->
+        <section id="section-reportes" class="app-section d-none">
+          <div class="row g-3">
+            <div class="col-lg-6">
+              <div class="panel-card">
+                <h5>Ventas por día (últimos 14 días)</h5>
+                <canvas id="chart-ventas-dia"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="panel-card">
+                <h5>Ventas por categoría</h5>
+                <canvas id="chart-ventas-categoria"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="panel-card">
+                <h5>Top 5 productos más vendidos</h5>
+                <canvas id="chart-top-productos"></canvas>
+              </div>
+            </div>
+            <div class="col-lg-6">
+              <div class="panel-card">
+                <h5>Ingresos por mes</h5>
+                <canvas id="chart-ingresos-mes"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALES ============ -->
+
+<!-- Modal Venta -->
+<div class="modal fade" id="modal-venta" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Registrar venta</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="form-venta">
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="form-label">Cliente</label>
+              <select id="venta-cliente" class="form-select" required></select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Fecha</label>
+              <input type="date" id="venta-fecha" class="form-control" required>
+            </div>
+          </div>
+          <hr>
+          <div id="venta-items"></div>
+          <button type="button" id="btn-add-item" class="btn btn-sm btn-outline-primary mt-2"><i class="fa-solid fa-plus"></i> Agregar producto</button>
+          <div class="text-end mt-3">
+            <h5>Total: S/ <span id="venta-total">0.00</span></h5>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btn-guardar-venta" class="btn btn-primary">Guardar venta</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Producto -->
+<div class="modal fade" id="modal-producto" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="titulo-modal-producto">Nuevo producto</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="form-producto">
+          <input type="hidden" id="producto-id">
+          <div class="mb-2"><label class="form-label">Nombre</label><input type="text" class="form-control" id="producto-nombre" required></div>
+          <div class="mb-2"><label class="form-label">Categoría</label><select id="producto-categoria" class="form-select"></select></div>
+          <div class="row g-2">
+            <div class="col-6"><label class="form-label">Precio (S/)</label><input type="number" step="0.01" min="0" class="form-control" id="producto-precio" required></div>
+            <div class="col-6"><label class="form-label">Stock</label><input type="number" min="0" class="form-control" id="producto-stock" required></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btn-guardar-producto" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Cliente -->
+<div class="modal fade" id="modal-cliente" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="titulo-modal-cliente">Nuevo cliente</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <form id="form-cliente">
+          <input type="hidden" id="cliente-id">
+          <div class="mb-2"><label class="form-label">Nombre completo</label><input type="text" class="form-control" id="cliente-nombre" required></div>
+          <div class="mb-2"><label class="form-label">DNI</label><input type="text" class="form-control" id="cliente-dni"></div>
+          <div class="mb-2"><label class="form-label">Teléfono</label><input type="text" class="form-control" id="cliente-telefono"></div>
+          <div class="mb-2"><label class="form-label">Correo</label><input type="email" class="form-control" id="cliente-correo"></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" id="btn-guardar-cliente" class="btn btn-primary">Guardar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Historial Cliente -->
+<div class="modal fade" id="modal-historial-cliente" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Historial de compras</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><div id="historial-cliente-body"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Detalle Venta -->
+<div class="modal fade" id="modal-detalle-venta" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Detalle de venta</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><div id="detalle-venta-body"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container" class="toast-container position-fixed bottom-0 end-0 p-3"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="js/firebase.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

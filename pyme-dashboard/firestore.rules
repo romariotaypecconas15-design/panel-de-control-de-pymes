@@ -1,0 +1,20 @@
+// Reglas de Firestore para este proyecto de demo/académico.
+//
+// Como el login del dashboard es solo una pantalla de demostración
+// (no usa Firebase Authentication), estas reglas dejan leer y
+// escribir sin restricciones. Esto es INSEGURO para producción:
+// cualquiera que conozca tu configuración de Firebase podría leer
+// o modificar los datos.
+//
+// Si más adelante agregas Firebase Authentication, cambia esto por
+// algo como:
+//   allow read, write: if request.auth != null;
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
